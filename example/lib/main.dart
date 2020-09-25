@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -23,7 +26,7 @@ class _MyAppState extends State<MyApp> {
     print(respGet.body);
     native_http.NativeResponse respPost = await native_http.post(
       "http://example.com/get",
-      body: {"username": "username", "password": "password"},
+      body: Uint8List.fromList(utf8.encode(jsonEncode({"username": "username", "password": "password"}))),
     );
     print(respPost.body);
   }

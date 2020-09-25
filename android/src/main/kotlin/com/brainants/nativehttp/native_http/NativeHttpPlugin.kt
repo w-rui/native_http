@@ -40,7 +40,7 @@ public class NativeHttpPlugin : FlutterPlugin, MethodCallHandler {
             val url = call.argument<String>("url")!!
             val method = call.argument<String>("method")!!
             var headers = call.argument<HashMap<String, Any>>("headers")
-            var body = call.argument<HashMap<String, Any>>("body")
+            var body = call.argument<ByteArray>("body")
             if (headers == null) headers = HashMap()
             if (body == null) body = HashMap()
             sendRequest(url, method, headers, body, result)
@@ -51,8 +51,8 @@ public class NativeHttpPlugin : FlutterPlugin, MethodCallHandler {
 
     val JSON: MediaType = "application/json; charset=utf-8".toMediaType()
 
-    fun sendRequest(url: String, method: String, headers: HashMap<String, Any>, body: HashMap<String, Any>, @NonNull result: Result) {
-        val requestBody: RequestBody = JSONObject(body).toString().toRequestBody(JSON)
+    fun sendRequest(url: String, method: String, headers: HashMap<String, Any>, body: ByteArray, @NonNull result: Result) {
+        val requestBody: RequestBody = body.toRequestBody(JSON)
         var requestBuilder: Request.Builder = Request.Builder()
                 .url(url)
         headers.entries.forEach {
@@ -76,7 +76,7 @@ public class NativeHttpPlugin : FlutterPlugin, MethodCallHandler {
                     override fun onResponse(call: Call, r: Response) {
                         val response = HashMap<String, Any>()
                         response["code"] = r.code
-                        response["body"] = r.body!!.string()
+                        response["body"] = r.body!!.bytes()
                         mHandler.post {
                             result.success(response)
                         }
