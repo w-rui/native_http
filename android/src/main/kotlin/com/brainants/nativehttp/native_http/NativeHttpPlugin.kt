@@ -42,7 +42,7 @@ public class NativeHttpPlugin : FlutterPlugin, MethodCallHandler {
             var headers = call.argument<HashMap<String, Any>>("headers")
             var body = call.argument<ByteArray>("body")
             if (headers == null) headers = HashMap()
-            if (body == null) body = HashMap()
+            if (body == null) body = ByteArray(0)
             sendRequest(url, method, headers, body, result)
         } else {
             result.notImplemented()
@@ -76,7 +76,7 @@ public class NativeHttpPlugin : FlutterPlugin, MethodCallHandler {
                     override fun onResponse(call: Call, r: Response) {
                         val response = HashMap<String, Any>()
                         response["code"] = r.code
-                        response["body"] = r.body!!.bytes()
+                        response["body"] = if (r.body != null) r.body!!.bytes() else ByteArray(0)
                         mHandler.post {
                             result.success(response)
                         }

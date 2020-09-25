@@ -27,7 +27,10 @@ public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
         let url = arguments!["url"] as! String
         let method = arguments!["method"] as! String
         let headers = arguments!["headers"] as! Dictionary<String, String>
-        let body = arguments!["body"] as! Data
+
+        let uintInt8List =  arguments!["body"] as! FlutterStandardTypedData
+        let body = uintInt8List.data
+
         handleCall(url:url, method:method,headers:headers, body:body, result:result)
     default:
         result("Not implemented");
@@ -63,7 +66,7 @@ public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
             
             var r :Dictionary = Dictionary<String, Any>()
             r["code"]  = responseCode;
-            r["body"]  = data!;
+            r["body"]  = FlutterStandardTypedData(bytes: data == nil ? Data.init() : data!);
             result(r);
         }
         task.resume()
@@ -91,7 +94,7 @@ public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
             
             var r :Dictionary = Dictionary<String, Any>()
             r["code"]  = responseCode;
-            r["body"]  = data!;
+            r["body"]  = FlutterStandardTypedData(bytes: data == nil ? Data.init() : data!);
             result(r);
         }
         task.resume()
