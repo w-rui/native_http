@@ -27,14 +27,14 @@ public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
         let url = arguments!["url"] as! String
         let method = arguments!["method"] as! String
         let headers = arguments!["headers"] as! Dictionary<String, String>
-        let body = arguments!["body"] as! NSData
+        let body = arguments!["body"] as! Data
         handleCall(url:url, method:method,headers:headers, body:body, result:result)
     default:
         result("Not implemented");
     }
   }
     
-    func handleCall(url: String, method: String, headers:Dictionary<String, String>, body:NSData, result:@escaping FlutterResult){
+    func handleCall(url: String, method: String, headers:Dictionary<String, String>, body: Data, result:@escaping FlutterResult){
         switch method {
         case "GET":
             return getCall(url:url, headers:headers, body:body, result: result);
@@ -43,7 +43,7 @@ public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    func getCall(url: String, headers:Dictionary<String, String>, body:NSData, result: @escaping FlutterResult) {
+    func getCall(url: String, headers:Dictionary<String, String>, body: Data, result: @escaping FlutterResult) {
         let url = URL(string: url)!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -69,7 +69,7 @@ public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
         task.resume()
     }
     
-    func dataCall(url: String, method: String, headers:Dictionary<String, String>, body:NSData, result: @escaping FlutterResult) {
+    func dataCall(url: String, method: String, headers:Dictionary<String, String>, body: Data, result: @escaping FlutterResult) {
         let url = URL(string: url)!
         var request = URLRequest(url: url)
         request.httpMethod = method
