@@ -1,6 +1,14 @@
 import Flutter
 import UIKit
 
+
+extension Encodable {
+  var dictionary: [String: Any]? {
+    guard let data = try? JSONEncoder().encode(self) else { return nil }
+    return (try? JSONSerialization.jsonObject(with: data, options: .allowFragments)).flatMap { $0 as? [String: Any] }
+  }
+}
+
 public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
 
   var session = URLSession(configuration: URLSessionConfiguration.default)
@@ -19,14 +27,14 @@ public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
         let url = arguments!["url"] as! String
         let method = arguments!["method"] as! String
         let headers = arguments!["headers"] as! Dictionary<String, String>
-        let body = arguments!["body"] as! Dictionary<String, String>
+        let body = arguments!["body"] as! Dictionary<String, Any>
         handleCall(url:url, method:method,headers:headers, body:body, result:result)
     default:
         result("Not implemented");
     }
   }
     
-    func handleCall(url: String, method: String, headers:Dictionary<String, String>, body:Dictionary<String, String>, result:@escaping FlutterResult){
+    func handleCall(url: String, method: String, headers:Dictionary<String, String>, body:Dictionary<String, Any>, result:@escaping FlutterResult){
         switch method {
         case "GET":
             return getCall(url:url, headers:headers, body:body, result: result);
@@ -35,7 +43,7 @@ public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
         }
     }
     
-    func getCall(url: String, headers:Dictionary<String, String>, body:Dictionary<String, String>, result: @escaping FlutterResult) {
+    func getCall(url: String, headers:Dictionary<String, String>, body:Dictionary<String, Any>, result: @escaping FlutterResult) {
         let url = URL(string: url)!
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
@@ -62,7 +70,7 @@ public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
         task.resume()
     }
     
-    func dataCall(url: String, method: String, headers:Dictionary<String, String>, body:Dictionary<String, String>, result: @escaping FlutterResult) {
+    func dataCall(url: String, method: String, headers:Dictionary<String, String>, body:Dictionary<String, Any>, result: @escaping FlutterResult) {
         let url = URL(string: url)!
         var request = URLRequest(url: url)
         request.httpMethod = method
@@ -72,12 +80,19 @@ public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
             request.setValue(value, forHTTPHeaderField: key)
         }
         
+        if let jsonData = try? JSONSerialization.data(withJSONObject: body, options: []) {
+            if let jsonString = String(data: jsonData, encoding: .ascii) {
+                request.httpBody = jsonString.data(using: .utf8)
+            }
+        }
+    
+        /*
         let encoder = JSONEncoder()
         if let jsonData = try? encoder.encode(body) {
             if let jsonString = String(data: jsonData, encoding: .utf8) {
                 request.httpBody = jsonString.data(using: .utf8)
             }
-        }
+        } // */
     
         let task = session.dataTask(with: request) {( data, response, error) in
             if(error != nil){
