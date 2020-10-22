@@ -47,7 +47,11 @@ public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
     }
     
     func getCall(url: String, headers:Dictionary<String, String>, body: Data, result: @escaping FlutterResult) {
-        let url = URL(string: url)!
+        guard let url = URL(string: url) else {
+            result(FlutterError (code:"400", message:"url invalid.", details:nil))
+            return
+        }
+      
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "content-type")
@@ -73,7 +77,11 @@ public class SwiftNativeHttpPlugin: NSObject, FlutterPlugin {
     }
     
     func dataCall(url: String, method: String, headers:Dictionary<String, String>, body: Data, result: @escaping FlutterResult) {
-        let url = URL(string: url)!
+        guard let url = URL(string: url) else {
+            result(FlutterError (code:"400", message:"url invalid.", details:nil))
+            return
+        }
+      
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.setValue("application/json", forHTTPHeaderField: "content-type")
